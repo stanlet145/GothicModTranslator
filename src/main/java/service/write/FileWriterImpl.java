@@ -28,6 +28,7 @@ public class FileWriterImpl implements FileWriter {
                         }
 
                 );
+        System.out.println(sB);
     }
 
 

@@ -1,0 +1,2 @@
+# GothicModTranslator
+GothicModTranslator

@@ -1,12 +1,15 @@
 package service.read;
 
 import com.google.common.io.Files;
+import io.vavr.control.Try;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystemNotFoundException;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class FileReaderImpl implements FileReader {
@@ -18,6 +21,7 @@ public class FileReaderImpl implements FileReader {
     @Override
     public Map<String, String> readDoubleSlashesFromSingleFile(String fileName) {
         List<String> fileContent = getFileContent(readFileFromResources(fileName));
+
         List<String> linesContainingDoubleSlash = detectValidScenario(fileContent, DOUBLE_SLASH);
 //        List<String> linesContainingDescription = detectValidScenario(fileContent, DESCRIPTION);
 //        List<String> linesContainingBLogEntry = detectValidScenario(fileContent, B_LOG_ENTRY);
@@ -52,22 +56,15 @@ public class FileReaderImpl implements FileReader {
     }
 
     private List<String> getFileContent(File file) {
-        List<String> lines = null;
-        try {
-            lines = Files.readLines(file, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lines;
+        return Try.of(() -> Files.readLines(file, StandardCharsets.UTF_8))
+                .map(fileContent -> fileContent)
+                .getOrElseThrow((Supplier<NoSuchElementException>) NoSuchElementException::new);
     }
 
     private File readFileFromResources(String fileName) {
-        ClassLoader classLoader = getClass().getClassLoader();
-        try {
-            return new File(classLoader.getResource(fileName).getFile());
-        } catch (Exception e) {
-            System.out.println("File not found");
-        }
-        return null;
+        return Try.of(() -> Objects.requireNonNull(getClass().getClassLoader().getResource(fileName)).getFile())
+                .onFailure(throwable -> System.out.println(throwable.getMessage()))
+                .map(File::new)
+                .getOrElseThrow((Supplier<NoSuchElementException>) NoSuchElementException::new);
     }
 }

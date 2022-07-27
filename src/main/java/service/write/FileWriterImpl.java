@@ -29,21 +29,24 @@ public class FileWriterImpl implements FileWriter {
         var fromFileContent = fileReader.getFileContent(from);
         var toFileContent = fileReader.readEntireFile(to);
         prepareDoubleSlashesChangesToWrite(stringBuilder, fromFileContent, toFileContent);
+        prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
         writeContentToFile(stringBuilder.toString(), to);
     }
 
     private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
         var sourceKeysAndValues = fileReader.readDoubleSlashesFromSingleFile(fileContent);
         toFileContent.forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
-                        .peek(inlineChange -> Match(inlineChange.isPresent()).of(
-                                Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),
-                                Case($(), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
-                        ));
+                .peek(inlineChange -> Match(inlineChange.isPresent()).of(
+                        Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),
+                        Case($(), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
+                ));
     }
 
-    private void prepareDescriptionChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, String to) {
+    private void prepareDescriptionChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
         var sourceKeysAndValues = fileReader.readDescriptionsFromSingleFile(fileContent);
+        toFileContent.forEach(line -> Try.of(() -> replaceLineContainingPhrase()));
     }
+
 
     private void writeContentToFile(String content, String to) {
         Try.run(() -> Files.write(content.getBytes(StandardCharsets.UTF_8), createDirectFile(to)))
@@ -68,6 +71,10 @@ public class FileWriterImpl implements FileWriter {
                 .filter(keyWord -> StringUtils.contains(line, keyWord.getKey()))
                 .map(valueToReplace -> replaceValues(valueToReplace.getValue(), line))
                 .findFirst();
+    }
+
+    private Optional<String> replaceLineContainingPhrase() {
+        return Optional.of("");
     }
 
     private String replaceValues(String valueToReplace, String line) {

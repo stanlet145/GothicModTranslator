@@ -27,7 +27,7 @@ public class FileWriterImpl implements FileWriter {
         var stringBuilder = new StringBuilder();
         var sourceKeysAndValues = fileReader.readDoubleSlashesFromSingleFile(from);
         fileReader.readEntireFile(to)
-                .forEach(line -> Try.of(() -> replaceValueForLineWhenKeyFound(line, sourceKeysAndValues))
+                .forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
                         .peek(inlineChange -> Match(inlineChange.isPresent()).of(
                                 Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),
                                 Case($(), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
@@ -49,11 +49,11 @@ public class FileWriterImpl implements FileWriter {
         }
     }
 
-    private Optional<String> replaceValueForLineWhenKeyFound(String line, Map<String, String> map) {
+    private Optional<String> replaceValueForLineWhenKeyWordFound(String line, Map<String, String> map) {
         return map.entrySet()
                 .stream()
-                .filter(e -> StringUtils.contains(line, e.getKey()))
-                .map(v -> replaceValues(v.getValue(), line))
+                .filter(keyWord -> StringUtils.contains(line, keyWord.getKey()))
+                .map(valueToReplace -> replaceValues(valueToReplace.getValue(), line))
                 .findFirst();
     }
 

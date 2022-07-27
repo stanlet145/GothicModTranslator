@@ -14,8 +14,8 @@ public class FileProcessingServiceImpl implements FileProcessingService {
 
     private final FileWriter fileWriter = new FileWriterImpl();
 
-    private static final String READ_FILES_FROM_DICTIONARY = "files/from";
-    private static final String READ_FILES_TO_DICTIONARY = "files/to";
+    private static final String READ_FILES_FROM_DICTIONARY = "../files/from";
+    private static final String READ_FILES_TO_DICTIONARY = "../files/to";
 
     @Override
     public void processFiles() {

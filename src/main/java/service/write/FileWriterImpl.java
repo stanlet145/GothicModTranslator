@@ -18,8 +18,8 @@ public class FileWriterImpl implements FileWriter {
 
     private final FileReader fileReader = new FileReaderImpl();
 
-    private static final String PREFIX_FOR_DESTINATION_FILE = "files\\to\\";
-    private static final String DESTINATION_PATH = "files\\direct\\";
+    private static final String PREFIX_FOR_DESTINATION_FILE = "..\\files\\to\\";
+    private static final String DESTINATION_PATH = "..\\files\\direct\\";
     private static final String LINE_SEPARATOR = "line.separator";
 
     @Override

@@ -14,19 +14,29 @@ import java.util.stream.Collectors;
 
 public class FileReaderImpl implements FileReader {
     private final static String DOUBLE_SLASH = "//";
-    private final static String DESCRIPTION = "description = ";
+    private final static String DESCRIPTION = "description = \"";
     private final static String B_LOG_ENTRY = "B_LogEntry(";
     private final static String INFO_ADD_CHOICE = "Info_AddChoice(";
 
     @Override
     public Map<String, String> readDoubleSlashesFromSingleFile(String fileName) {
         List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
+        return getMapContainingDoubleSlashes(detectValidScenario(fileContent, DOUBLE_SLASH));
+    }
 
-        List<String> linesContainingDoubleSlash = detectValidScenario(fileContent, DOUBLE_SLASH);
-//        List<String> linesContainingDescription = detectValidScenario(fileContent, DESCRIPTION);
-//        List<String> linesContainingBLogEntry = detectValidScenario(fileContent, B_LOG_ENTRY);
-//        List<String> linesContainingInfoAddChoice = detectValidScenario(fileContent, INFO_ADD_CHOICE);
-        return getMapContainingDoubleSlashes(linesContainingDoubleSlash);
+    public List<String> readDescriptionsFromSingleFile(String fileName) {
+        List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
+        return detectValidScenario(fileContent, DESCRIPTION);
+    }
+
+    public List<String> readBLogEntriesFromSingleFile(String fileName) {
+        List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
+        return detectValidScenario(fileContent, B_LOG_ENTRY);
+    }
+
+    public List<String> readInfoAddChoicesFromSingleFile(String fileName) {
+        List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
+        return detectValidScenario(fileContent, INFO_ADD_CHOICE);
     }
 
     @Override
@@ -40,8 +50,13 @@ public class FileReaderImpl implements FileReader {
         return map;
     }
 
+    @Override
     public String getValueForLine(String line) {
         return StringUtils.substringAfter(line, DOUBLE_SLASH);
+    }
+
+    private String getValueForLine(String line, String scenario) {
+        return StringUtils.substringAfter(line, scenario);
     }
 
     private String getKeyForLine(String line) {
@@ -60,6 +75,7 @@ public class FileReaderImpl implements FileReader {
                 .map(fileContent -> fileContent)
                 .getOrElseThrow((Supplier<NoSuchElementException>) NoSuchElementException::new);
     }
+
     private File readFileFromDirectory(String fileName) {
         return Option.of(FileReadingUtils.tryReadAllFilesByPath(fileName).stream().findFirst().get())
                 .getOrElseThrow(NoSuchElementException::new);

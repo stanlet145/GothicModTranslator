@@ -6,6 +6,12 @@ import java.util.Map;
 public interface FileReader {
     Map<String, String> readDoubleSlashesFromSingleFile(List<String> fileName);
 
+    List<String> readDescriptionsFromSingleFile(List<String> fileContent);
+
+    List<String> readBLogEntriesFromSingleFile(List<String> fileContent);
+
+    List<String> readInfoAddChoicesFromSingleFile(List<String> fileContent);
+
     List<String> readEntireFile(String fileName);
 
     String getValueForLine(String line);

@@ -9,6 +9,7 @@ import service.read.FileReaderImpl;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,19 +26,23 @@ public class FileWriterImpl implements FileWriter {
     @Override
     public void writeBetweenFiles(String from, String to) {
         var stringBuilder = new StringBuilder();
-        prepareDoubleSlashesChangesToWrite(stringBuilder, from, to);
+        var fromFileContent = fileReader.getFileContent(from);
+        var toFileContent = fileReader.readEntireFile(to);
+        prepareDoubleSlashesChangesToWrite(stringBuilder, fromFileContent, toFileContent);
         writeContentToFile(stringBuilder.toString(), to);
     }
 
-    private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, String from, String to) {
-        var fileContent = fileReader.getFileContent(from);
+    private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
         var sourceKeysAndValues = fileReader.readDoubleSlashesFromSingleFile(fileContent);
-        fileReader.readEntireFile(to)
-                .forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
+        toFileContent.forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
                         .peek(inlineChange -> Match(inlineChange.isPresent()).of(
                                 Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),
                                 Case($(), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
                         ));
+    }
+
+    private void prepareDescriptionChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, String to) {
+        var sourceKeysAndValues = fileReader.readDescriptionsFromSingleFile(fileContent);
     }
 
     private void writeContentToFile(String content, String to) {

@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class FileReaderImpl implements FileReader {
+
     private final static String DOUBLE_SLASH = "//";
     private final static String DESCRIPTION = "description = \"";
     private final static String B_LOG_ENTRY = "B_LogEntry(";
@@ -23,18 +24,18 @@ public class FileReaderImpl implements FileReader {
         return getMapContainingDoubleSlashes(detectValidScenario(fileContent, DOUBLE_SLASH));
     }
 
-    public List<String> readDescriptionsFromSingleFile(String fileName) {
-        List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
+    @Override
+    public List<String> readDescriptionsFromSingleFile(List<String> fileContent) {
         return detectValidScenario(fileContent, DESCRIPTION);
     }
 
-    public List<String> readBLogEntriesFromSingleFile(String fileName) {
-        List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
+    @Override
+    public List<String> readBLogEntriesFromSingleFile(List<String> fileContent) {
         return detectValidScenario(fileContent, B_LOG_ENTRY);
     }
 
-    public List<String> readInfoAddChoicesFromSingleFile(String fileName) {
-        List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
+    @Override
+    public List<String> readInfoAddChoicesFromSingleFile(List<String> fileContent) {
         return detectValidScenario(fileContent, INFO_ADD_CHOICE);
     }
 
@@ -48,15 +49,15 @@ public class FileReaderImpl implements FileReader {
         return getFileContent(readFileFromDirectory(fileName));
     }
 
+    @Override
+    public String getValueForLine(String line) {
+        return StringUtils.substringAfter(line, DOUBLE_SLASH);
+    }
+
     private Map<String, String> getMapContainingDoubleSlashes(List<String> linesContainingDoubleSlash) {
         var map = new LinkedHashMap<String, String>();
         linesContainingDoubleSlash.forEach(s -> map.put(getKeyForLine(s), getValueForLine(s)));
         return map;
-    }
-
-    @Override
-    public String getValueForLine(String line) {
-        return StringUtils.substringAfter(line, DOUBLE_SLASH);
     }
 
     private String getValueForLine(String line, String scenario) {

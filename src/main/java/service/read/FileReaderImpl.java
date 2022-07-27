@@ -19,8 +19,7 @@ public class FileReaderImpl implements FileReader {
     private final static String INFO_ADD_CHOICE = "Info_AddChoice(";
 
     @Override
-    public Map<String, String> readDoubleSlashesFromSingleFile(String fileName) {
-        List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
+    public Map<String, String> readDoubleSlashesFromSingleFile(List<String> fileContent) {
         return getMapContainingDoubleSlashes(detectValidScenario(fileContent, DOUBLE_SLASH));
     }
 
@@ -37,6 +36,11 @@ public class FileReaderImpl implements FileReader {
     public List<String> readInfoAddChoicesFromSingleFile(String fileName) {
         List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
         return detectValidScenario(fileContent, INFO_ADD_CHOICE);
+    }
+
+    @Override
+    public List<String> getFileContent(String fileName) {
+        return getFileContent(readFileFromDirectory(fileName));
     }
 
     @Override

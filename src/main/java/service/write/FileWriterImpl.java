@@ -30,7 +30,8 @@ public class FileWriterImpl implements FileWriter {
     }
 
     private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, String from, String to) {
-        var sourceKeysAndValues = fileReader.readDoubleSlashesFromSingleFile(from);
+        var fileContent = fileReader.getFileContent(from);
+        var sourceKeysAndValues = fileReader.readDoubleSlashesFromSingleFile(fileContent);
         fileReader.readEntireFile(to)
                 .forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
                         .peek(inlineChange -> Match(inlineChange.isPresent()).of(

@@ -25,6 +25,11 @@ public class FileWriterImpl implements FileWriter {
     @Override
     public void writeBetweenFiles(String from, String to) {
         var stringBuilder = new StringBuilder();
+        prepareDoubleSlashesChangesToWrite(stringBuilder, from, to);
+        writeContentToFile(stringBuilder.toString(), to);
+    }
+
+    private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, String from, String to) {
         var sourceKeysAndValues = fileReader.readDoubleSlashesFromSingleFile(from);
         fileReader.readEntireFile(to)
                 .forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
@@ -32,7 +37,6 @@ public class FileWriterImpl implements FileWriter {
                                 Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),
                                 Case($(), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
                         ));
-        writeContentToFile(stringBuilder.toString(), to);
     }
 
     private void writeContentToFile(String content, String to) {

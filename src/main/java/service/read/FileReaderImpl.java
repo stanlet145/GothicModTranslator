@@ -1,8 +1,10 @@
 package service.read;
 
 import com.google.common.io.Files;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.commons.lang3.StringUtils;
+import service.utils.FileReadingUtils;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +20,7 @@ public class FileReaderImpl implements FileReader {
 
     @Override
     public Map<String, String> readDoubleSlashesFromSingleFile(String fileName) {
-        List<String> fileContent = getFileContent(readFileFromResources(fileName));
+        List<String> fileContent = getFileContent(readFileFromDirectory(fileName));
 
         List<String> linesContainingDoubleSlash = detectValidScenario(fileContent, DOUBLE_SLASH);
 //        List<String> linesContainingDescription = detectValidScenario(fileContent, DESCRIPTION);
@@ -29,7 +31,7 @@ public class FileReaderImpl implements FileReader {
 
     @Override
     public List<String> readEntireFile(String fileName) {
-        return getFileContent(readFileFromResources(fileName));
+        return getFileContent(readFileFromDirectory(fileName));
     }
 
     private Map<String, String> getMapContainingDoubleSlashes(List<String> linesContainingDoubleSlash) {
@@ -58,11 +60,8 @@ public class FileReaderImpl implements FileReader {
                 .map(fileContent -> fileContent)
                 .getOrElseThrow((Supplier<NoSuchElementException>) NoSuchElementException::new);
     }
-
-    private File readFileFromResources(String fileName) {
-        return Try.of(() -> Objects.requireNonNull(getClass().getClassLoader().getResource(fileName)).getFile())
-                .onFailure(throwable -> System.out.println(throwable.getMessage()))
-                .map(File::new)
-                .getOrElseThrow((Supplier<NoSuchElementException>) NoSuchElementException::new);
+    private File readFileFromDirectory(String fileName) {
+        return Option.of(FileReadingUtils.tryReadAllFilesByPath(fileName).stream().findFirst().get())
+                .getOrElseThrow(NoSuchElementException::new);
     }
 }

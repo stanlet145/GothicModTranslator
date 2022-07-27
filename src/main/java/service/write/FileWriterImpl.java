@@ -18,8 +18,8 @@ public class FileWriterImpl implements FileWriter {
 
     private final FileReader fileReader = new FileReaderImpl();
 
-    private static final String PREFIX_FOR_DESTINATION_FILE = "pl/";
-    private static final String DESTINATION_PATH = "src/main/resources/direct/";
+    private static final String PREFIX_FOR_DESTINATION_FILE = "files\\to\\";
+    private static final String DESTINATION_PATH = "files\\direct\\";
     private static final String LINE_SEPARATOR = "line.separator";
 
     @Override
@@ -40,9 +40,12 @@ public class FileWriterImpl implements FileWriter {
     }
 
     private void writeContentToFile(String content, String to) {
-        Try.run(() -> Files.write(content.getBytes(StandardCharsets.UTF_8),
-                        new File(StringUtils.replace(to, PREFIX_FOR_DESTINATION_FILE, DESTINATION_PATH))))
+        Try.run(() -> Files.write(content.getBytes(StandardCharsets.UTF_8), createDirectFile(to)))
                 .onFailure(throwable -> System.out.println(throwable.getMessage()));
+    }
+
+    private File createDirectFile(String to) {
+        return new File(StringUtils.replace(to, PREFIX_FOR_DESTINATION_FILE, DESTINATION_PATH));
     }
 
     private void buildLineFromChange(StringBuilder stringBuilder, Option<String> change, String line) {

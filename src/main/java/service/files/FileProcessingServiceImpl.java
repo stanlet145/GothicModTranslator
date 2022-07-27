@@ -1,25 +1,29 @@
 package service.files;
 
-import io.vavr.control.Try;
+import service.utils.FileReadingUtils;
+import service.write.FileWriter;
+import service.write.FileWriterImpl;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class FileProcessingServiceImpl implements FileProcessingService {
+
+    private final FileWriter fileWriter = new FileWriterImpl();
 
     private static final String READ_FILES_FROM_DICTIONARY = "files/from";
     private static final String READ_FILES_TO_DICTIONARY = "files/to";
 
     @Override
-    public Map<String, String> mapProcessedFiles() {
-       return createFilesFromFilesToMap(
+    public void processFiles() {
+        prepareFilesToProcess().forEach(fileWriter::writeBetweenFiles);
+    }
+
+    private Map<String, String> prepareFilesToProcess() {
+        return createFilesFromFilesToMap(
                 tryReadAllFilesGivenDirectory(READ_FILES_FROM_DICTIONARY),
                 tryReadAllFilesGivenDirectory(READ_FILES_TO_DICTIONARY)
         );
@@ -30,12 +34,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
     }
 
     private List<File> tryReadAllFilesGivenDirectory(String directoryPath) {
-        return Try.of(() -> Files.walk(Paths.get(directoryPath))
-                        .filter(Files::isRegularFile)
-                        .map(Path::toFile)
-                        .collect(Collectors.toList()))
-                .onFailure(System.out::println)
-                .get();
+        return FileReadingUtils.tryReadAllFilesByPath(directoryPath);
     }
 
     private Optional<File> findEqualFileForGivenFileName(String searchedFileName, List<File> searchedFiles) {
@@ -44,7 +43,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
 
     private Map<String, String> buildMapFromLists(Map<String, String> map, List<File> filesFrom, List<File> filesTo) {
         filesFrom.forEach(file -> findEqualFileForGivenFileName(file.getName(), filesTo)
-                .ifPresent(comparedFile -> map.put(file.getName(), comparedFile.getName())));
+                .ifPresent(comparedFile -> map.put(file.getPath(), comparedFile.getPath())));
         return map;
     }
 }

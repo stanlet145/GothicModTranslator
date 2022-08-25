@@ -20,13 +20,13 @@ public class FileReaderImpl implements FileReader {
     private final static String INFO_ADD_CHOICE = "Info_AddChoice(";
 
     @Override
-    public Map<String, String> readDoubleSlashesFromAllLinesFromFiles(List<String> fileContent) {
-        return getMapContainingDoubleSlashes(detectValidScenario(fileContent, DOUBLE_SLASH));
+    public Map<String, String> readDoubleSlashesFromAllLinesFromFiles(List<String> allLinesFromFiles) {
+        return getMapContainingDoubleSlashes(detectValidScenario(allLinesFromFiles, DOUBLE_SLASH));
     }
 
     @Override
-    public List<String> readDescriptionsFromSingleFile(List<String> fileContent) {
-        return detectValidScenario(fileContent, DESCRIPTION);
+    public Map<String, String> readDescriptionsFromAllLinesFromFiles(List<String> allLinesFromFiles) {
+        return getMapContainingDescriptions(detectValidScenario(allLinesFromFiles, DESCRIPTION), allLinesFromFiles);
     }
 
     @Override
@@ -56,7 +56,13 @@ public class FileReaderImpl implements FileReader {
 
     private Map<String, String> getMapContainingDoubleSlashes(List<String> linesContainingDoubleSlash) {
         var map = new LinkedHashMap<String, String>();
-        linesContainingDoubleSlash.forEach(s -> map.put(getKeyForLine(s), getValueForLine(s)));
+        linesContainingDoubleSlash.forEach(s -> map.put(getKeyForDoubleSlashesLines(s), getValueForLine(s)));
+        return map;
+    }
+
+    private Map<String, String> getMapContainingDescriptions(List<String> linesContainingDescriptions, List<String> allLinesForFiles) {
+        var map = new LinkedHashMap<String, String>();
+        linesContainingDescriptions.forEach(s -> map.put(getKeyForDescription(s, allLinesForFiles), s));
         return map;
     }
 
@@ -64,8 +70,25 @@ public class FileReaderImpl implements FileReader {
         return StringUtils.substringAfter(line, scenario);
     }
 
-    private String getKeyForLine(String line) {
+    private String getKeyForDoubleSlashesLines(String line) {
         return "\"" + StringUtils.substringBetween(line, "\"", "\"") + "\"";
+    }
+
+    private String getKeyForDescription(String line, List<String> allLinesForFiles) {
+        //cofamy sie wstecz i szukamy nazwy instancji i ja zwracamy
+        var nameOfInstance = "";
+        for (int i = 0; i < allLinesForFiles.size(); i++) {
+            if (allLinesForFiles.get(i).contains(line)) {
+                for (int j = i; j > 0; j--) {
+                    if (allLinesForFiles.get(j).contains("instance ")) {
+                        System.out.println(allLinesForFiles.get(j));
+                        nameOfInstance = allLinesForFiles.get(j);
+                        return nameOfInstance;
+                    }
+                }
+            }
+        }
+        return nameOfInstance;
     }
 
     private List<String> detectValidScenario(List<String> lines, String detector) {

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface FileReader {
-    Map<String, String> readDoubleSlashesFromAllLinesFromFiles(List<String> fileContent);
+    Map<String, String> readDoubleSlashesFromAllLinesFromFiles(List<String> allLinesFromFiles);
 
-    List<String> readDescriptionsFromSingleFile(List<String> fileContent);
+    Map<String, String> readDescriptionsFromAllLinesFromFiles(List<String> allLinesFromFiles);
 
     List<String> readBLogEntriesFromSingleFile(List<String> fileContent);
 

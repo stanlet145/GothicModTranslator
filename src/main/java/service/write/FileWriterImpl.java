@@ -28,8 +28,11 @@ public class FileWriterImpl implements FileWriter {
         var stringBuilder = new StringBuilder();
         var toFileContent = fileReader.readEntireFile(to);
         prepareDoubleSlashesChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
-      //  prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
         writeContentToFile(stringBuilder.toString(), to);
+        var stringBuilder2 = new StringBuilder();
+        prepareDescriptionChangesToWrite(stringBuilder2, allLinesFromFiles, toFileContent);
+        //  prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
+        writeContentToFile(stringBuilder2.toString(), to);
     }
 
     private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> allLinesFromFiles, List<String> toFileContent) {
@@ -42,8 +45,23 @@ public class FileWriterImpl implements FileWriter {
     }
 
     private void prepareDescriptionChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
-        var sourceDescriptions = fileReader.readDescriptionsFromSingleFile(fileContent);
-        toFileContent.forEach(line -> Try.of(() -> replaceLineContainingPhrase(line, sourceDescriptions)));
+        var sourceDescriptions = fileReader.readDescriptionsFromAllLinesFromFiles(fileContent);
+        for (int i = 0; i < toFileContent.size(); i++) {
+            int finalI = i;
+            sourceDescriptions.forEach((s, s2) -> {
+                if (toFileContent.get(finalI).contains(s)) {
+                    for (int j = finalI; j < toFileContent.size(); j++) {
+                        if (toFileContent.get(j).contains("description = \"")) {
+                            System.out.println(toFileContent.get(j));
+                            stringBuilder.append(s2).append(System.getProperty(LINE_SEPARATOR));;
+                            break;
+                        } else {
+                            stringBuilder.append(toFileContent.get(j)).append(System.getProperty(LINE_SEPARATOR));;
+                        }
+                    }
+                }
+            });
+        }
     }
 
 

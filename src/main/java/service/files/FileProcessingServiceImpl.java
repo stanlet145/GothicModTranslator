@@ -36,8 +36,4 @@ public class FileProcessingServiceImpl implements FileProcessingService {
     private List<File> tryReadAllFilesGivenDirectory(String directoryPath) {
         return FileReadingUtils.tryReadAllFilesByPath(directoryPath);
     }
-
-    private Optional<File> findEqualFileForGivenFileName(String searchedFileName, List<File> searchedFiles) {
-        return searchedFiles.stream().filter(file -> file.getName().equals(searchedFileName)).findFirst();
-    }
 }

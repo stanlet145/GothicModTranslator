@@ -51,7 +51,6 @@ public class FileWriterImpl implements FileWriter {
                     for (int j = finalI; j < toFileContent.size(); j++) {
                         if (toFileContent.get(j).contains("description = \"")) {
                             System.out.println(toFileContent.get(j));
-                            stringBuilder.append(s2).append(System.getProperty(LINE_SEPARATOR));;
                             break;
                         }
                     }

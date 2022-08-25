@@ -20,7 +20,7 @@ public class FileWriterImpl implements FileWriter {
     private final FileReader fileReader = new FileReaderImpl();
 
     private static final String PREFIX_FOR_DESTINATION_FILE = "..\\files\\to\\";
-    private static final String DESTINATION_PATH = "..\\files\\direct\\";
+    private static final String DESTINATION_PATH = "..\\files\\result\\";
     private static final String LINE_SEPARATOR = "line.separator";
 
     @Override
@@ -29,7 +29,7 @@ public class FileWriterImpl implements FileWriter {
         var fromFileContent = fileReader.getFileContent(from);
         var toFileContent = fileReader.readEntireFile(to);
         prepareDoubleSlashesChangesToWrite(stringBuilder, fromFileContent, toFileContent);
-        prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
+      //  prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
         writeContentToFile(stringBuilder.toString(), to);
     }
 
@@ -38,13 +38,13 @@ public class FileWriterImpl implements FileWriter {
         toFileContent.forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
                 .peek(inlineChange -> Match(inlineChange.isPresent()).of(
                         Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),
-                        Case($(), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
+                        Case($(false), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
                 ));
     }
 
     private void prepareDescriptionChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
-        var sourceKeysAndValues = fileReader.readDescriptionsFromSingleFile(fileContent);
-        toFileContent.forEach(line -> Try.of(() -> replaceLineContainingPhrase()));
+        var sourceDescriptions = fileReader.readDescriptionsFromSingleFile(fileContent);
+        toFileContent.forEach(line -> Try.of(() -> replaceLineContainingPhrase(line, sourceDescriptions)));
     }
 
 
@@ -73,7 +73,7 @@ public class FileWriterImpl implements FileWriter {
                 .findFirst();
     }
 
-    private Optional<String> replaceLineContainingPhrase() {
+    private Optional<String> replaceLineContainingPhrase(String line, List<String> sourceDescriptions) {
         return Optional.of("");
     }
 

@@ -21,6 +21,7 @@ public class FileReaderImpl implements FileReader {
 
     @Override
     public Map<String, String> readDoubleSlashesFromSingleFile(List<String> fileContent) {
+        var description = detectValidScenario(fileContent, DESCRIPTION);
         return getMapContainingDoubleSlashes(detectValidScenario(fileContent, DOUBLE_SLASH));
     }
 
@@ -65,7 +66,7 @@ public class FileReaderImpl implements FileReader {
     }
 
     private String getKeyForLine(String line) {
-        return StringUtils.substringBetween(line, "\"", "\"");
+        return "\"" + StringUtils.substringBetween(line, "\"", "\"") + "\"";
     }
 
     private List<String> detectValidScenario(List<String> lines, String detector) {

@@ -1,5 +1,7 @@
 package service.write;
 
+import java.util.List;
+
 public interface FileWriter {
-    void writeBetweenFiles(String from, String to);
+    void writeBetweenFiles(List<String> allLinesFromFiles, String to);
 }

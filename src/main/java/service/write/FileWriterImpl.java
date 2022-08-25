@@ -24,17 +24,16 @@ public class FileWriterImpl implements FileWriter {
     private static final String LINE_SEPARATOR = "line.separator";
 
     @Override
-    public void writeBetweenFiles(String from, String to) {
+    public void writeBetweenFiles(List<String> allLinesFromFiles, String to) {
         var stringBuilder = new StringBuilder();
-        var fromFileContent = fileReader.getFileContent(from);
         var toFileContent = fileReader.readEntireFile(to);
-        prepareDoubleSlashesChangesToWrite(stringBuilder, fromFileContent, toFileContent);
+        prepareDoubleSlashesChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
       //  prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
         writeContentToFile(stringBuilder.toString(), to);
     }
 
-    private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
-        var sourceKeysAndValues = fileReader.readDoubleSlashesFromSingleFile(fileContent);
+    private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> allLinesFromFiles, List<String> toFileContent) {
+        var sourceKeysAndValues = fileReader.readDoubleSlashesFromAllLinesFromFiles(allLinesFromFiles);
         toFileContent.forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
                 .peek(inlineChange -> Match(inlineChange.isPresent()).of(
                         Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),

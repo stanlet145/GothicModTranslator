@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface FileReader {
-    Map<String, String> readDoubleSlashesFromSingleFile(List<String> fileName);
+    Map<String, String> readDoubleSlashesFromAllLinesFromFiles(List<String> fileContent);
 
     List<String> readDescriptionsFromSingleFile(List<String> fileContent);
 

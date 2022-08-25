@@ -20,8 +20,7 @@ public class FileReaderImpl implements FileReader {
     private final static String INFO_ADD_CHOICE = "Info_AddChoice(";
 
     @Override
-    public Map<String, String> readDoubleSlashesFromSingleFile(List<String> fileContent) {
-        var description = detectValidScenario(fileContent, DESCRIPTION);
+    public Map<String, String> readDoubleSlashesFromAllLinesFromFiles(List<String> fileContent) {
         return getMapContainingDoubleSlashes(detectValidScenario(fileContent, DOUBLE_SLASH));
     }
 

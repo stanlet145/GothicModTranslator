@@ -28,11 +28,9 @@ public class FileWriterImpl implements FileWriter {
         var stringBuilder = new StringBuilder();
         var toFileContent = fileReader.readEntireFile(to);
         prepareDoubleSlashesChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
-        writeContentToFile(stringBuilder.toString(), to);
-        var stringBuilder2 = new StringBuilder();
-        prepareDescriptionChangesToWrite(stringBuilder2, allLinesFromFiles, toFileContent);
+        prepareDescriptionChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
         //  prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
-        writeContentToFile(stringBuilder2.toString(), to);
+        writeContentToFile(stringBuilder.toString(), to);
     }
 
     private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> allLinesFromFiles, List<String> toFileContent) {
@@ -55,8 +53,6 @@ public class FileWriterImpl implements FileWriter {
                             System.out.println(toFileContent.get(j));
                             stringBuilder.append(s2).append(System.getProperty(LINE_SEPARATOR));;
                             break;
-                        } else {
-                            stringBuilder.append(toFileContent.get(j)).append(System.getProperty(LINE_SEPARATOR));;
                         }
                     }
                 }

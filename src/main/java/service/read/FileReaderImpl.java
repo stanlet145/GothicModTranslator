@@ -62,7 +62,8 @@ public class FileReaderImpl implements FileReader {
 
     private Map<String, String> getMapContainingDescriptions(List<String> linesContainingDescriptions, List<String> allLinesForFiles) {
         var map = new LinkedHashMap<String, String>();
-        linesContainingDescriptions.forEach(s -> map.put(getKeyForDescription(s, allLinesForFiles), s));
+        linesContainingDescriptions
+                .forEach(s -> map.put(getKeyForDescription(s, allLinesForFiles), s));
         return map;
     }
 

@@ -9,6 +9,7 @@ import service.read.FileReaderImpl;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,23 +28,32 @@ public class FileWriterImpl implements FileWriter {
     public void writeBetweenFiles(List<String> allLinesFromFiles, String to) {
         var stringBuilder = new StringBuilder();
         var toFileContent = fileReader.readEntireFile(to);
-        prepareDoubleSlashesChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
-        prepareDescriptionChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
+        var slashesChanges = prepareDoubleSlashesChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
+        var descriptionChanges = prepareDescriptionChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
+        var allChangesMap = new LinkedHashMap<String, String>();
+        allChangesMap.putAll(slashesChanges);
+        allChangesMap.putAll(descriptionChanges);
+        replaceLines(stringBuilder, toFileContent, allChangesMap);
         //  prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
         writeContentToFile(stringBuilder.toString(), to);
     }
 
-    private void prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> allLinesFromFiles, List<String> toFileContent) {
-        var sourceKeysAndValues = fileReader.readDoubleSlashesFromAllLinesFromFiles(allLinesFromFiles);
-        toFileContent.forEach(line -> Try.of(() -> replaceValueForLineWhenKeyWordFound(line, sourceKeysAndValues))
+    private Map<String, String> prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> allLinesFromFiles, List<String> toFileContent) {
+        return fileReader.readDoubleSlashesFromAllLinesFromFiles(allLinesFromFiles);
+    }
+
+    private void replaceLines(StringBuilder stringBuilder, List<String> toFileContent, Map<String, String> map) {
+        toFileContent.forEach(line -> Try.of(() ->
+                        replaceValueForLineWhenKeyWordFound(line, map))
                 .peek(inlineChange -> Match(inlineChange.isPresent()).of(
                         Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),
                         Case($(false), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
                 ));
     }
 
-    private void prepareDescriptionChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
+    private LinkedHashMap<String, String> prepareDescriptionChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
         var sourceDescriptions = fileReader.readDescriptionsFromAllLinesFromFiles(fileContent);
+        var mapOfDescriptions = new LinkedHashMap<String, String>();
         for (int i = 0; i < toFileContent.size(); i++) {
             int finalI = i;
             sourceDescriptions.forEach((s, s2) -> {
@@ -51,14 +61,15 @@ public class FileWriterImpl implements FileWriter {
                     for (int j = finalI; j < toFileContent.size(); j++) {
                         if (toFileContent.get(j).contains("description = \"")) {
                             System.out.println(toFileContent.get(j));
+                            mapOfDescriptions.put(toFileContent.get(j), s2);
                             break;
                         }
                     }
                 }
             });
         }
+        return mapOfDescriptions;
     }
-
 
     private void writeContentToFile(String content, String to) {
         Try.run(() -> Files.write(content.getBytes(StandardCharsets.UTF_8), createDirectFile(to)))
@@ -90,6 +101,9 @@ public class FileWriterImpl implements FileWriter {
     }
 
     private String replaceValues(String valueToReplace, String line) {
+        if (line.contains("description")) {
+            return StringUtils.replace(line, line, valueToReplace);
+        }
         return StringUtils.replace(line, fileReader.getValueForLine(line), valueToReplace);
     }
 }

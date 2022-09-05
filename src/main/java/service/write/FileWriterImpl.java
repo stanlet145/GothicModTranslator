@@ -24,21 +24,28 @@ public class FileWriterImpl implements FileWriter {
     private static final String DESTINATION_PATH = "..\\files\\result\\";
     private static final String LINE_SEPARATOR = "line.separator";
 
+    private static final String DESCRIPTION = "description = \"";
+
     @Override
     public void writeBetweenFiles(List<String> allLinesFromFiles, String to) {
         var stringBuilder = new StringBuilder();
         var toFileContent = fileReader.readEntireFile(to);
-        var slashesChanges = prepareDoubleSlashesChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
-        var descriptionChanges = prepareDescriptionChangesToWrite(stringBuilder, allLinesFromFiles, toFileContent);
+//        var slashesChanges = prepareDoubleSlashesChangesToWrite(allLinesFromFiles);
+//        var descriptionChanges = prepareDescriptionChangesToWrite(allLinesFromFiles, toFileContent);
+        var bLogEntryChanges = prepareInfoAddChoiceChanges(allLinesFromFiles, toFileContent);
         var allChangesMap = new LinkedHashMap<String, String>();
-        allChangesMap.putAll(slashesChanges);
-        allChangesMap.putAll(descriptionChanges);
+//        allChangesMap.putAll(slashesChanges);
+//        allChangesMap.putAll(descriptionChanges);
         replaceLines(stringBuilder, toFileContent, allChangesMap);
-        //  prepareDescriptionChangesToWrite(stringBuilder, fromFileContent, toFileContent);
         writeContentToFile(stringBuilder.toString(), to);
     }
 
-    private Map<String, String> prepareDoubleSlashesChangesToWrite(StringBuilder stringBuilder, List<String> allLinesFromFiles, List<String> toFileContent) {
+    private Map<String, String> prepareInfoAddChoiceChanges(List<String> allLinesFromFiles, List<String> toFileContent) {
+        fileReader.readInfoAddChoicesFromSingleFile(allLinesFromFiles);
+        return null;
+    }
+
+    private Map<String, String> prepareDoubleSlashesChangesToWrite(List<String> allLinesFromFiles) {
         return fileReader.readDoubleSlashesFromAllLinesFromFiles(allLinesFromFiles);
     }
 
@@ -51,7 +58,7 @@ public class FileWriterImpl implements FileWriter {
                 ));
     }
 
-    private LinkedHashMap<String, String> prepareDescriptionChangesToWrite(StringBuilder stringBuilder, List<String> fileContent, List<String> toFileContent) {
+    private LinkedHashMap<String, String> prepareDescriptionChangesToWrite(List<String> fileContent, List<String> toFileContent) {
         var sourceDescriptions = fileReader.readDescriptionsFromAllLinesFromFiles(fileContent);
         var mapOfDescriptions = new LinkedHashMap<String, String>();
         for (int i = 0; i < toFileContent.size(); i++) {
@@ -59,7 +66,7 @@ public class FileWriterImpl implements FileWriter {
             sourceDescriptions.forEach((s, s2) -> {
                 if (toFileContent.get(finalI).contains(s)) {
                     for (int j = finalI; j < toFileContent.size(); j++) {
-                        if (toFileContent.get(j).contains("description = \"")) {
+                        if (toFileContent.get(j).contains(DESCRIPTION)) {
                             System.out.println(toFileContent.get(j));
                             mapOfDescriptions.put(toFileContent.get(j), s2);
                             break;
@@ -96,12 +103,8 @@ public class FileWriterImpl implements FileWriter {
                 .findFirst();
     }
 
-    private Optional<String> replaceLineContainingPhrase(String line, List<String> sourceDescriptions) {
-        return Optional.of("");
-    }
-
     private String replaceValues(String valueToReplace, String line) {
-        if (line.contains("description")) {
+        if (line.contains(DESCRIPTION)) {
             return StringUtils.replace(line, line, valueToReplace);
         }
         return StringUtils.replace(line, fileReader.getValueForLine(line), valueToReplace);

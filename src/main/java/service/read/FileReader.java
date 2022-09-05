@@ -8,9 +8,9 @@ public interface FileReader {
 
     Map<String, String> readDescriptionsFromAllLinesFromFiles(List<String> allLinesFromFiles);
 
-    List<String> readBLogEntriesFromSingleFile(List<String> fileContent);
+    Map<String, String> readBLogEntriesFromSingleFile(List<String> fileContent);
 
-    List<String> readInfoAddChoicesFromSingleFile(List<String> fileContent);
+    Map<String, String> readInfoAddChoicesFromSingleFile(List<String> fileContent);
 
     List<String> readEntireFile(String fileName);
 

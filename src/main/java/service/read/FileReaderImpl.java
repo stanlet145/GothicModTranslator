@@ -18,6 +18,7 @@ public class FileReaderImpl implements FileReader {
     private final static String DESCRIPTION = "description = \"";
     private final static String B_LOG_ENTRY = "B_LogEntry(";
     private final static String INFO_ADD_CHOICE = "Info_AddChoice(";
+    private final static String KEY_IDENTIFIER = "[ID()]";
 
     @Override
     public Map<String, String> readDoubleSlashesFromAllLinesFromFiles(List<String> allLinesFromFiles) {
@@ -26,17 +27,17 @@ public class FileReaderImpl implements FileReader {
 
     @Override
     public Map<String, String> readDescriptionsFromAllLinesFromFiles(List<String> allLinesFromFiles) {
-        return getMapContainingDescriptions(detectValidScenario(allLinesFromFiles, DESCRIPTION), allLinesFromFiles);
+        return getMapContainingScenario(detectValidScenario(allLinesFromFiles, DESCRIPTION), allLinesFromFiles, "instance ");
     }
 
     @Override
-    public List<String> readBLogEntriesFromSingleFile(List<String> fileContent) {
-        return detectValidScenario(fileContent, B_LOG_ENTRY);
+    public Map<String, String> readBLogEntriesFromSingleFile(List<String> allLinesFromFiles) {
+        return getMapContainingScenario(detectValidScenario(allLinesFromFiles, B_LOG_ENTRY), allLinesFromFiles, "func ");
     }
 
     @Override
-    public List<String> readInfoAddChoicesFromSingleFile(List<String> fileContent) {
-        return detectValidScenario(fileContent, INFO_ADD_CHOICE);
+    public Map<String, String> readInfoAddChoicesFromSingleFile(List<String> allLinesFromFiles) {
+        return getMapContainingScenario(detectValidScenario(allLinesFromFiles, INFO_ADD_CHOICE), allLinesFromFiles, "func ");
     }
 
     @Override
@@ -60,10 +61,17 @@ public class FileReaderImpl implements FileReader {
         return map;
     }
 
-    private Map<String, String> getMapContainingDescriptions(List<String> linesContainingDescriptions, List<String> allLinesForFiles) {
+    private Map<String, String> getMapContainingScenario(List<String> linesContainingDescriptions, List<String> allLinesForFiles, String argument) {
         var map = new LinkedHashMap<String, String>();
         linesContainingDescriptions
-                .forEach(s -> map.put(getKeyForDescription(s, allLinesForFiles), s));
+                .forEach(s -> {
+                    String key = getKeyForArgument(s, allLinesForFiles, argument);
+                    if (map.containsKey(key)) {
+                        key = key + KEY_IDENTIFIER;
+                        key = StringUtils.replace(key, "()", "(" + UUID.randomUUID() + ")");
+                    }
+                    map.put(key, s);
+                });
         return map;
     }
 
@@ -75,13 +83,13 @@ public class FileReaderImpl implements FileReader {
         return "\"" + StringUtils.substringBetween(line, "\"", "\"") + "\"";
     }
 
-    private String getKeyForDescription(String line, List<String> allLinesForFiles) {
+    private String getKeyForArgument(String line, List<String> allLinesForFiles, String argument) {
         //cofamy sie wstecz i szukamy nazwy instancji i ja zwracamy
         var nameOfInstance = "";
         for (int i = 0; i < allLinesForFiles.size(); i++) {
             if (allLinesForFiles.get(i).contains(line)) {
                 for (int j = i; j > 0; j--) {
-                    if (allLinesForFiles.get(j).contains("instance ")) {
+                    if (allLinesForFiles.get(j).contains(argument)) {
                         System.out.println(allLinesForFiles.get(j));
                         nameOfInstance = allLinesForFiles.get(j);
                         return nameOfInstance;

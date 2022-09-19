@@ -18,7 +18,6 @@ public class FileReaderImpl implements FileReader {
     private final static String DESCRIPTION = "description = \"";
     private final static String B_LOG_ENTRY = "B_LogEntry(";
     private final static String INFO_ADD_CHOICE = "Info_AddChoice(";
-    private final static String KEY_IDENTIFIER = "[ID()]";
 
     @Override
     public Map<String, String> readDoubleSlashesFromAllLinesFromFiles(List<String> allLinesFromFiles) {
@@ -37,7 +36,7 @@ public class FileReaderImpl implements FileReader {
 
     @Override
     public Map<String, String> readInfoAddChoicesFromSingleFile(List<String> allLinesFromFiles) {
-        return getMapContainingScenario(detectValidScenario(allLinesFromFiles, INFO_ADD_CHOICE), allLinesFromFiles, "func ");
+        return getMapForAddChoice(detectValidScenario(allLinesFromFiles, INFO_ADD_CHOICE), allLinesFromFiles);
     }
 
     @Override
@@ -66,13 +65,30 @@ public class FileReaderImpl implements FileReader {
         linesContainingDescriptions
                 .forEach(s -> {
                     String key = getKeyForArgument(s, allLinesForFiles, argument);
-                    if (map.containsKey(key)) {
-                        key = key + KEY_IDENTIFIER;
-                        key = StringUtils.replace(key, "()", "(" + UUID.randomUUID() + ")");
-                    }
                     map.put(key, s);
+
                 });
         return map;
+    }
+
+    private Map<String, String> getMapForAddChoice(List<String> linesContainingDescriptions, List<String> allLinesForFiles) {
+        var map = new LinkedHashMap<String, String>();
+        linesContainingDescriptions
+                .forEach(s -> {
+                    String key = getKeyForArgument(s, allLinesForFiles, "func ");
+                    String keyPart;
+                    keyPart = getKeyPartForAddChoiceScenario(s);
+                    key = keyPart;
+                    if (s.contains("\"")) {
+                        map.put(key, s);
+                    }
+                });
+        return map;
+    }
+
+    private String getKeyPartForAddChoiceScenario(String s) {
+        String[] split = s.split(",");
+        return split[2].replace(");", "");
     }
 
     private String getValueForLine(String line, String scenario) {

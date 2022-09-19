@@ -25,24 +25,25 @@ public class FileWriterImpl implements FileWriter {
     private static final String LINE_SEPARATOR = "line.separator";
 
     private static final String DESCRIPTION = "description = \"";
+    private static final String INFO_ADD_CHOICE = "Info_AddChoice";
 
     @Override
     public void writeBetweenFiles(List<String> allLinesFromFiles, String to) {
         var stringBuilder = new StringBuilder();
         var toFileContent = fileReader.readEntireFile(to);
-//        var slashesChanges = prepareDoubleSlashesChangesToWrite(allLinesFromFiles);
-//        var descriptionChanges = prepareDescriptionChangesToWrite(allLinesFromFiles, toFileContent);
-        var bLogEntryChanges = prepareInfoAddChoiceChanges(allLinesFromFiles, toFileContent);
+        var slashesChanges = prepareDoubleSlashesChangesToWrite(allLinesFromFiles);
+        var descriptionChanges = prepareDescriptionChangesToWrite(allLinesFromFiles, toFileContent);
+        var infoAddChoiceChanges = prepareInfoAddChoiceChanges(allLinesFromFiles, toFileContent);
         var allChangesMap = new LinkedHashMap<String, String>();
-//        allChangesMap.putAll(slashesChanges);
-//        allChangesMap.putAll(descriptionChanges);
+        allChangesMap.putAll(slashesChanges);
+        allChangesMap.putAll(descriptionChanges);
+        allChangesMap.putAll(infoAddChoiceChanges);
         replaceLines(stringBuilder, toFileContent, allChangesMap);
         writeContentToFile(stringBuilder.toString(), to);
     }
 
     private Map<String, String> prepareInfoAddChoiceChanges(List<String> allLinesFromFiles, List<String> toFileContent) {
-        fileReader.readInfoAddChoicesFromSingleFile(allLinesFromFiles);
-        return null;
+        return fileReader.readInfoAddChoicesFromSingleFile(allLinesFromFiles);
     }
 
     private Map<String, String> prepareDoubleSlashesChangesToWrite(List<String> allLinesFromFiles) {
@@ -103,9 +104,19 @@ public class FileWriterImpl implements FileWriter {
                 .findFirst();
     }
 
+
     private String replaceValues(String valueToReplace, String line) {
         if (line.contains(DESCRIPTION)) {
             return StringUtils.replace(line, line, valueToReplace);
+        } else if (line.contains(INFO_ADD_CHOICE)) {
+
+            String[] splitLine = StringUtils.split(line, "\"");
+            String[] splitValueToBeReplaced = StringUtils.split(valueToReplace, "\"");
+
+            String value = splitLine[1];
+            String value2 = splitValueToBeReplaced[1];
+
+            return StringUtils.replace(line, value, value2);
         }
         return StringUtils.replace(line, fileReader.getValueForLine(line), valueToReplace);
     }

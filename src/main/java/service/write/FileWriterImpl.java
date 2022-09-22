@@ -35,8 +35,8 @@ public class FileWriterImpl implements FileWriter {
         var descriptionChanges = prepareDescriptionChangesToWrite(allLinesFromFiles, toFileContent);
         var infoAddChoiceChanges = prepareInfoAddChoiceChanges(allLinesFromFiles, toFileContent);
         var allChangesMap = new LinkedHashMap<String, String>();
-//        allChangesMap.putAll(slashesChanges);
-//        allChangesMap.putAll(descriptionChanges);
+        allChangesMap.putAll(slashesChanges);
+        allChangesMap.putAll(descriptionChanges);
         allChangesMap.putAll(infoAddChoiceChanges);
         replaceLines(stringBuilder, toFileContent, allChangesMap);
         writeContentToFile(stringBuilder.toString(), to);

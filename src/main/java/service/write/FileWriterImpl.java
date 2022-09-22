@@ -35,8 +35,8 @@ public class FileWriterImpl implements FileWriter {
         var descriptionChanges = prepareDescriptionChangesToWrite(allLinesFromFiles, toFileContent);
         var infoAddChoiceChanges = prepareInfoAddChoiceChanges(allLinesFromFiles, toFileContent);
         var allChangesMap = new LinkedHashMap<String, String>();
-        allChangesMap.putAll(slashesChanges);
-        allChangesMap.putAll(descriptionChanges);
+//        allChangesMap.putAll(slashesChanges);
+//        allChangesMap.putAll(descriptionChanges);
         allChangesMap.putAll(infoAddChoiceChanges);
         replaceLines(stringBuilder, toFileContent, allChangesMap);
         writeContentToFile(stringBuilder.toString(), to);
@@ -99,11 +99,25 @@ public class FileWriterImpl implements FileWriter {
     private Optional<String> replaceValueForLineWhenKeyWordFound(String line, Map<String, String> map) {
         return map.entrySet()
                 .stream()
-                .filter(keyWord -> StringUtils.contains(line, keyWord.getKey()))
+                .filter(keyWord -> checkIfLineContainsKey(line, keyWord.getKey()))
                 .map(valueToReplace -> replaceValues(valueToReplace.getValue(), line))
                 .findFirst();
     }
 
+    private boolean checkIfLineContainsKey(String line, String key) {
+        return StringUtils.contains(line, key) && (!line.contains(INFO_ADD_CHOICE) || checkKeyTillTheEndOfTheLine(line, key));
+    }
+
+
+    private boolean checkKeyTillTheEndOfTheLine(String line, String key) {
+        String[] split = StringUtils.splitByWholeSeparator(line, key);
+        Option<Boolean> map = Option.of(split[1])
+                .map(ending -> StringUtils.startsWith(ending, ");"));
+        if (map.isDefined()) {
+            return map.get();
+        }
+        return false;
+    }
 
     private String replaceValues(String valueToReplace, String line) {
         if (line.contains(DESCRIPTION)) {

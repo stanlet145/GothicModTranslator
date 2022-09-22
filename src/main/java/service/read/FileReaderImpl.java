@@ -75,11 +75,11 @@ public class FileReaderImpl implements FileReader {
         var map = new LinkedHashMap<String, String>();
         linesContainingDescriptions
                 .forEach(s -> {
-                    String key = getKeyForArgument(s, allLinesForFiles, "func ");
-                    String keyPart;
-                    keyPart = getKeyPartForAddChoiceScenario(s);
-                    key = keyPart;
                     if (s.contains("\"")) {
+                        String key = getKeyForArgument(s, allLinesForFiles, "func ");
+                        String keyPart;
+                        keyPart = getKeyPartForAddChoiceScenario(s);
+                        key = keyPart;
                         map.put(key, s);
                     }
                 });
@@ -87,8 +87,9 @@ public class FileReaderImpl implements FileReader {
     }
 
     private String getKeyPartForAddChoiceScenario(String s) {
-        String[] split = s.split(",");
-        return split[2].replace(");", "");
+        String[] split = s.split("\"");
+        return split[2].replace(");", "")
+                .replace(",","");
     }
 
     private String getValueForLine(String line, String scenario) {

@@ -105,7 +105,7 @@ public class FileWriterImpl implements FileWriter {
     }
 
     private boolean checkIfLineContainsKey(String line, String key) {
-        return StringUtils.contains(line, key) && (!line.contains(INFO_ADD_CHOICE) || checkKeyTillTheEndOfTheLine(line, key));
+        return StringUtils.containsIgnoreCase(line, key) && (!line.contains(INFO_ADD_CHOICE) || checkKeyTillTheEndOfTheLine(line, key));
     }
 
 

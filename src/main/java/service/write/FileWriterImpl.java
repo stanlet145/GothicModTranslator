@@ -56,7 +56,8 @@ public class FileWriterImpl implements FileWriter {
                 .peek(inlineChange -> Match(inlineChange.isPresent()).of(
                         Case($(true), () -> run(() -> buildLineFromChange(stringBuilder, Option.of(inlineChange.get()), line))),
                         Case($(false), () -> run(() -> buildLineFromChange(stringBuilder, Option.none(), line))))
-                ));
+                )
+                .onFailure($ -> buildLineFromChange(stringBuilder, Option.none(), line)));
     }
 
     private LinkedHashMap<String, String> prepareDescriptionChangesToWrite(List<String> fileContent, List<String> toFileContent) {
